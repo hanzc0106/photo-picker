@@ -1,14 +1,24 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
+declare global {
+  interface Window {
+    electron: typeof electronAPI
+    api: ApiType
+  }
+}
+
+export type ApiType = typeof api
+
 // Custom APIs for renderer
 const api = {
   selectDirectory: () => electronAPI.ipcRenderer.invoke('select-directory'),
   scanDirectory: () => electronAPI.ipcRenderer.invoke('scan-directory'),
-  getSettings: () => electronAPI.ipcRenderer.invoke('get-settings'),
-  getSetting: (key) => electronAPI.ipcRenderer.invoke('get-setting', key),
-  setSetting: (key, value) => electronAPI.ipcRenderer.invoke('set-setting', key, value),
-  deleteImg: (file, deleteRaw) => electronAPI.ipcRenderer.invoke('delete-img', file, deleteRaw)
+  getSetting: (key: string) => electronAPI.ipcRenderer.invoke('get-setting', key),
+  setSetting: (key: string, value: any) =>
+    electronAPI.ipcRenderer.invoke('set-setting', key, value),
+  deleteImg: (file: string, deleteRaw: boolean) =>
+    electronAPI.ipcRenderer.invoke('delete-img', file, deleteRaw)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

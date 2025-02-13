@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDirSettings } from '../store/dirSettings'
