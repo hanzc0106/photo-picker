@@ -152,7 +152,7 @@ const handleNext = async () => {
   </div>
   <ul class="file-ul">
     <li v-for="file in dirFiles" :key="file" class="file-li" @click="handleDisplay(file)">
-      <img class="file-li-img" :src="encodeURI('file://' + dirInput + '/' + file)" />
+      <img class="file-li-img" :src="encodeURI('file://' + dirInput + '/' + file)" loading="lazy" />
       <figure>{{ file }}</figure>
       <button class="file-li-delete" @click.prevent.stop="handleDelete(file)">删除</button>
     </li>
