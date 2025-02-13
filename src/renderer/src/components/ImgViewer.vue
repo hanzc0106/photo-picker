@@ -60,18 +60,20 @@ const handleClose = async () => {
 const handlePrev = async () => {
   const index = dirFiles.value.indexOf(displayImg.value.split('/').pop())
   if (index > 0) {
-    setDisplayImg(encodeURI(dirInput.value + '/' + dirFiles.value[index - 1]))
+    setDisplayImg(encodeURI('file://' + dirInput.value + '/' + dirFiles.value[index - 1]))
   } else {
-    setDisplayImg(encodeURI(dirInput.value + '/' + dirFiles.value[dirFiles.value.length - 1]))
+    setDisplayImg(
+      encodeURI('file://' + dirInput.value + '/' + dirFiles.value[dirFiles.value.length - 1])
+    )
   }
 }
 
 const handleNext = async () => {
   const index = dirFiles.value.indexOf(displayImg.value.split('/').pop())
   if (index < dirFiles.value.length - 1) {
-    setDisplayImg(encodeURI(dirInput.value + '/' + dirFiles.value[index + 1]))
+    setDisplayImg(encodeURI('file://' + dirInput.value + '/' + dirFiles.value[index + 1]))
   } else {
-    setDisplayImg(encodeURI(dirInput.value + '/' + dirFiles.value[0]))
+    setDisplayImg(encodeURI('file://' + dirInput.value + '/' + dirFiles.value[0]))
   }
 }
 

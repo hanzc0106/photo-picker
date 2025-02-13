@@ -12,7 +12,7 @@ const { displayImg } = storeToRefs(storeImgDisplay)
 const { setDisplayImg } = storeImgDisplay
 
 const handleDisplay = async (img) => {
-  setDisplayImg(encodeURI(dirInput.value + '/' + img))
+  setDisplayImg(encodeURI('file://' + dirInput.value + '/' + img))
 
   document.body.style.overflow = 'hidden'
 }
