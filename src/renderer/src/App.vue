@@ -75,6 +75,8 @@ const handleClear = () => {
 const handleDisplay = async (img) => {
   console.log('display')
   displayImg.value = encodeURI(dirInput.value + '/' + img)
+
+  document.body.style.overflow = 'hidden'
 }
 
 const deleteImg = async (fileName) => {
@@ -115,6 +117,8 @@ const handleDelete = async (fileName) => {
 
 const handleClose = async () => {
   displayImg.value = ''
+
+  document.body.style.overflow = 'auto'
 }
 
 const handlePrev = async () => {
@@ -183,7 +187,6 @@ const handleNext = async () => {
 
   display: flex;
   gap: 10px;
-  width: 100vw;
   justify-content: space-between;
 
   background-color: rgba(0, 0, 0, 0.3);
