@@ -1,22 +1,15 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import DirSelector from './components/DirSelector.vue'
+import { storeToRefs } from 'pinia'
+import { useDirSettings } from './store/dirSettings'
 
-const dirInput = ref('')
-const dirFiles = ref([])
+const store = useDirSettings()
+const { dir: dirInput, dirFiles, deleteRaw: shouldDeleteRaw } = storeToRefs(store)
+const { setDeleteRaw } = store
+
 const displayImg = ref('')
 const imgDisplayDivRef = ref(null)
-const shouldDeleteRaw = ref(false)
-
-onMounted(async () => {
-  const directory = await window.api.getSetting('directory')
-  const deleteRaw = await window.api.getSetting('deleteRaw')
-
-  if (directory) {
-    dirInput.value = directory.replace(/\\/g, '/')
-  }
-
-  shouldDeleteRaw.value = !!deleteRaw
-})
 
 const handleKeyUp = (event) => {
   switch (event.key) {
@@ -43,37 +36,13 @@ onUnmounted(() => {
   document.removeEventListener('keyup', handleKeyUp)
 })
 
-const handleChange = async (event) => {
-  const dir = event.target.value
-  dirInput.value = dir.replace(/\\/g, '/')
-  dirFiles.value = []
-  await window.api.setSetting('directory', dir)
-}
-
 const handleCheck = async (event) => {
   const checked = event.target.checked
-  shouldDeleteRaw.value = event.target.checked
+  setDeleteRaw(checked)
   await window.api.setSetting('deleteRaw', checked)
 }
 
-const handleOpen = async () => {
-  const dir = await window.api.selectDirectory()
-  dirInput.value = dir.replace(/\\/g, '/')
-  dirFiles.value = []
-  await window.api.setSetting('directory', dir)
-}
-
-const handleScan = async () => {
-  const scannedDirFiles = await window.api.scanDirectory()
-  dirFiles.value = scannedDirFiles
-}
-
-const handleClear = () => {
-  dirFiles.value = []
-}
-
 const handleDisplay = async (img) => {
-  console.log('display')
   displayImg.value = encodeURI(dirInput.value + '/' + img)
 
   document.body.style.overflow = 'hidden'
@@ -141,19 +110,7 @@ const handleNext = async () => {
 </script>
 
 <template>
-  <div class="settings">
-    <label class="directory">
-      <span>目录</span>
-      <input v-model="dirInput" @change="handleChange" />
-      <button @click="handleOpen">打开</button>
-      <button @click="handleScan">扫描</button>
-      <button @click="handleClear">清除</button>
-    </label>
-    <label class="sync-delete-raw">
-      <span>删除RAF</span>
-      <input v-model="shouldDeleteRaw" type="checkbox" @change="handleCheck" />
-    </label>
-  </div>
+  <DirSelector />
   <ul class="file-ul">
     <li v-for="file in dirFiles" :key="file" class="file-li" @click="handleDisplay(file)">
       <img class="file-li-img" :src="encodeURI('file://' + dirInput + '/' + file)" loading="lazy" />
