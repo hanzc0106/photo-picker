@@ -3,7 +3,7 @@ import { useDirSettings, useImgDisplay } from '../store'
 
 export function useDeleteImg() {
   const storeDirSettings = useDirSettings()
-  const { dirInput, dirFiles, deleteRaw } = storeToRefs(storeDirSettings)
+  const { dir: dirInput, dirFiles, deleteRaw } = storeToRefs(storeDirSettings)
   const { setDirFiles } = storeDirSettings
 
   const storeImgDisplay = useImgDisplay()
