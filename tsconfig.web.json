@@ -8,6 +8,7 @@
   ],
   "compilerOptions": {
     "composite": true,
+    "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
       "@renderer/*": [

@@ -23,9 +23,9 @@ export function useDeleteImg() {
       } else {
         const index = dirFiles.value.indexOf(fileName)
         if (index === dirFiles.value.length - 1) {
-          setDisplayImg(encodeURI(dirInput.value + '/' + dirFiles.value[0]))
+          setDisplayImg(dirInput.value, dirFiles.value[0])
         } else {
-          setDisplayImg(encodeURI(dirInput.value + '/' + dirFiles.value[index + 1]))
+          setDisplayImg(dirInput.value, dirFiles.value[index + 1])
         }
       }
     }

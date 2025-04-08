@@ -6,8 +6,12 @@ export const useImgDisplay = defineStore('imgDisplay', {
   }),
   getters: {},
   actions: {
-    setDisplayImg(displayImg) {
-      this.displayImg = displayImg
+    setDisplayImg(dirName, fileName) {
+      if (!dirName || !fileName) {
+        this.displayImg = ''
+        return
+      }
+      this.displayImg = encodeURI(`file://${dirName}/${fileName}`)
     }
   }
 })

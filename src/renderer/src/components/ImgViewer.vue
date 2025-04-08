@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, h, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDirSettings, useImgDisplay } from '../store'
 import { useDeleteImg } from '../hooks/useDeleteImg'
@@ -12,6 +12,7 @@ const storeImgDisplay = useImgDisplay()
 const { displayImg } = storeToRefs(storeImgDisplay)
 const { setDisplayImg } = storeImgDisplay
 
+const displayImgName = computed(() => displayImg.value.split('/').pop())
 const imgDisplayDivRef = ref(null)
 
 const handleKeyUp = (event) => {
@@ -39,12 +40,7 @@ const handleCheck = async (event) => {
 
 const deleteImg = useDeleteImg()
 
-const handleDelete = async (fileName) => {
-  if (fileName) {
-    await deleteImg(fileName)
-    return
-  }
-
+const handleDelete = async () => {
   if (displayImg.value) {
     await deleteImg(displayImg.value.split('/').pop())
     return
@@ -60,20 +56,18 @@ const handleClose = async () => {
 const handlePrev = async () => {
   const index = dirFiles.value.indexOf(displayImg.value.split('/').pop())
   if (index > 0) {
-    setDisplayImg(encodeURI('file://' + dirInput.value + '/' + dirFiles.value[index - 1]))
+    setDisplayImg(dirInput.value, dirFiles.value[index - 1])
   } else {
-    setDisplayImg(
-      encodeURI('file://' + dirInput.value + '/' + dirFiles.value[dirFiles.value.length - 1])
-    )
+    setDisplayImg(dirInput.value, dirFiles.value[dirFiles.value.length - 1])
   }
 }
 
 const handleNext = async () => {
   const index = dirFiles.value.indexOf(displayImg.value.split('/').pop())
   if (index < dirFiles.value.length - 1) {
-    setDisplayImg(encodeURI('file://' + dirInput.value + '/' + dirFiles.value[index + 1]))
+    setDisplayImg(dirInput.value, dirFiles.value[index + 1])
   } else {
-    setDisplayImg(encodeURI('file://' + dirInput.value + '/' + dirFiles.value[0]))
+    setDisplayImg(dirInput.value, dirFiles.value[0])
   }
 }
 
@@ -88,6 +82,7 @@ onUnmounted(() => {
 
 <template>
   <div v-show="displayImg" ref="imgDisplayDivRef" class="img-display" @click="handleCloseDisplay">
+    <h1 class="title">{{ displayImgName }}</h1>
     <img class="display-img" :src="displayImg" />
     <div class="img-display-operation">
       <button @click="handleClose">关闭</button>
@@ -114,6 +109,15 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.title {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .display-img {
