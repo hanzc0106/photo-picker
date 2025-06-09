@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useDirSettings, useImgDisplay } from '../store'
 import ImgListItem from './ImgListItem.vue'

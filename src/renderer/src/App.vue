@@ -1,7 +1,7 @@
 <script setup>
 import DirSelector from './components/DirSelector.vue'
 import ImgList from './components/ImgList.vue'
-import ImgViewer from './components/ImgViewer.vue'
+import ImgViewer from './components/ImageViewer.vue'
 </script>
 
 <template>

@@ -3,16 +3,17 @@ import { useDirSettings, useImgDisplay } from '../store'
 
 export function useDeleteImg() {
   const storeDirSettings = useDirSettings()
-  const { dirInput, dirFiles, deleteRaw } = storeToRefs(storeDirSettings)
+  const { dir: dirInput, dirFiles, deleteRaw } = storeToRefs(storeDirSettings)
   const { setDirFiles } = storeDirSettings
 
   const storeImgDisplay = useImgDisplay()
   const { displayImg } = storeToRefs(storeImgDisplay)
   const { setDisplayImg } = storeImgDisplay
 
-  const deleteImg = async (fileName) => {
+  const deleteImg = async (fileName: string) => {
+    fileName = decodeURI(fileName)
     try {
-      await window.api.deleteImg(decodeURI(fileName), deleteRaw.value)
+      await window.api.deleteImg(fileName, deleteRaw.value)
     } catch (e) {
       console.error(e)
     }
@@ -30,6 +31,7 @@ export function useDeleteImg() {
       }
     }
 
+    console.log('dirFiles: ', dirFiles.value, fileName)
     setDirFiles(dirFiles.value.filter((file) => file !== fileName))
   }
 
