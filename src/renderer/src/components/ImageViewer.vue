@@ -1,5 +1,6 @@
 <template>
   <div class="viewer" ref="viewerRef" v-show="displayImg">
+    <div class="mask" @click="handleClose"></div>
     <img
       :src="displayImg"
       class="viewer-image"
@@ -13,36 +14,54 @@
       @mouseup="mouseUp"
     />
     <div class="toolbar">
-      <div class="btn" @click="oneToOne">1:1</div>
-      <div class="btn" @click="reset">重置</div>
-      <div class="btn" @click="rotate">旋转</div>
-      <div class="btn" @click="flipX">上下翻转</div>
-      <div class="btn" @click="flipY">左右翻转</div>
-      <div class="btn">{{ imageRatio }}%</div>
-      <div class="btn" @click="handlePrev">上一个</div>
-      <div class="btn" @click="handleNext">下一个</div>
-      <div class="btn" @click="() => handleDelete()">删除</div>
-      <label>
-        <span>删除RAF</span>
-        <input v-model="deleteRaw" type="checkbox" @change="handleCheck" />
-      </label>
+      <div class="filename">{{ fileName }}</div>
+      <div class="toolbar-operations">
+        <div class="btn" @click="oneToOne">1:1</div>
+        <div class="btn" @click="reset">重置</div>
+        <div class="btn" @click="rotate">旋转</div>
+        <div class="btn" @click="flipX">上下翻转</div>
+        <div class="btn" @click="flipY">左右翻转</div>
+        <div class="btn">{{ imageRatio }}%</div>
+        <div class="btn" @click="handlePrev">上一个</div>
+        <div class="btn" @click="handleNext">下一个</div>
+        <div class="btn" @click="() => handleDelete()">删除</div>
+        <label class="checkbox">
+          <span>删除RAF</span>
+          <input v-model="deleteRaw" type="checkbox" @change="handleCheck" />
+        </label>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import {
+  ref,
+  onMounted,
+  onUnmounted,
+  computed,
+  CSSProperties,
+  watch,
+  nextTick,
+  onBeforeUnmount
+} from 'vue'
 import { storeToRefs } from 'pinia'
-import { useDirSettings, useImgDisplay } from '../store'
-import { useDeleteImg } from '../hooks/useDeleteImg'
+import { useDirSetting, useDisplayImage } from '../store'
+import { useDeleteImage } from '@renderer/hooks/useDeleteImg'
+import { throttle } from 'lodash-es'
 
-const storeDirSettings = useDirSettings()
-const { dir, dirFiles, deleteRaw } = storeToRefs(storeDirSettings)
-const { setDeleteRaw } = storeDirSettings
+const storeDirSetting = useDirSetting()
+const { dir, dirFiles, deleteRaw } = storeToRefs(storeDirSetting)
+const { setDeleteRaw } = storeDirSetting
 
-const storeImgDisplay = useImgDisplay()
-const { displayImg } = storeToRefs(storeImgDisplay)
-const { setDisplayImg } = storeImgDisplay
+const storeDisplayImage = useDisplayImage()
+const { displayImg } = storeToRefs(storeDisplayImage)
+const { setDisplayImg } = storeDisplayImage
+
+const fileName = computed(() => {
+  if (!displayImg.value) return ''
+  return decodeURI(displayImg.value.split('/').pop() as string)
+})
 
 const handleKeyUp = (event) => {
   switch (event.key) {
@@ -67,20 +86,13 @@ const handleCheck = async (event) => {
   await window.api.setSetting('deleteRaw', checked)
 }
 
-const deleteImg = useDeleteImg()
+const deleteImage = useDeleteImage()
 
-const handleDelete = async (fileName) => {
+const handleDelete = async () => {
   reset()
-  console.log('handleDelete', fileName, displayImg.value)
-  if (fileName) {
-    await deleteImg(fileName)
-    return
-  }
 
   if (displayImg.value) {
-    console.log(displayImg.value.split('/').pop())
-
-    await deleteImg(displayImg.value.split('/').pop())
+    await deleteImage(fileName.value)
     return
   }
 }
@@ -94,7 +106,8 @@ const handleClose = async () => {
 
 const handlePrev = async () => {
   reset()
-  const index = dirFiles.value.indexOf(displayImg.value.split('/').pop())
+  console.log(dirFiles.value, fileName.value)
+  const index = dirFiles.value.indexOf(fileName.value)
   if (index > 0) {
     setDisplayImg(encodeURI('file://' + dir.value + '/' + dirFiles.value[index - 1]))
   } else {
@@ -106,7 +119,7 @@ const handlePrev = async () => {
 
 const handleNext = async () => {
   reset()
-  const index = dirFiles.value.indexOf(displayImg.value.split('/').pop())
+  const index = dirFiles.value.indexOf(fileName.value)
   if (index < dirFiles.value.length - 1) {
     setDisplayImg(encodeURI('file://' + dir.value + '/' + dirFiles.value[index + 1]))
   } else {
@@ -132,8 +145,8 @@ onUnmounted(() => {
 // 获取屏幕尺寸
 // [d]获取图片尺寸
 // [d]获取图片初始大小
-const viewerRef = ref(null)
-const imageRef = ref(null)
+const viewerRef = ref<HTMLDivElement>()
+const imageRef = ref<HTMLImageElement>()
 
 const viewerSize = ref()
 
@@ -150,31 +163,16 @@ const imageFlipY = ref(false)
 const isImageUpscale = ref(false)
 
 // 图片样式
-const imageStyle = ref(null)
+const imageStyle = ref<CSSProperties>()
 
 const imageRatio = computed(() => {
   if (!imageNaturalSize.value || !imageAutoSize.value || !imageScale.value) return 0
   return ((imageAutoSize.value[0] * imageScale.value * 100) / imageNaturalSize.value[0]).toFixed(0)
 })
 
-function throttle(fn, delay) {
-  let lastTime = Date.now()
-  let context = this
-  return function (...args) {
-    const nowTime = Date.now()
-    if (nowTime - lastTime >= delay) {
-      fn.call(context, ...args)
-      lastTime = nowTime
-    }
-  }
-}
-
 const transitionDuration = 1000 / 60
 
 function wheelImage(e) {
-  if (imageScale.value >= 2 || imageScale.value <= 0.1) {
-    return
-  }
   const imageRect = e.target.getBoundingClientRect()
   const imageRectCenterX = imageRect.x + imageRect.width / 2
   const imageRectCenterY = imageRect.y + imageRect.height / 2
@@ -223,7 +221,7 @@ function dblclick(e) {
 }
 
 const isMouseDown = ref(false)
-const mouseMovePos = ref(null)
+const mouseMovePos = ref<[number, number]>([0, 0])
 
 function mouseDown(e) {
   isMouseDown.value = true
@@ -251,7 +249,7 @@ function mouseUp(e) {
   updateImageStyle()
 
   isMouseDown.value = false
-  mouseMovePos.value = null
+  mouseMovePos.value = [0, 0]
 }
 
 function oneToOne() {
@@ -281,7 +279,8 @@ function reset() {
   imageRotate.value = 0
   imageFlipX.value = false
   imageFlipY.value = false
-  imageStyle.value = null
+  imageStyle.value = {}
+  setImageSizes()
 }
 
 function rotate() {
@@ -302,7 +301,17 @@ function flipY() {
   updateImageStyle()
 }
 
-function updateImageStyle(props = {}, useTransition = true) {
+function updateImageStyle(
+  props: {
+    translateX?: number
+    translateY?: number
+    scale?: number
+    rotate?: number
+    rotateX?: number
+    rotateY?: number
+  } = {},
+  useTransition = true
+) {
   const translateX = props.translateX || imageTranslate.value[0]
   const translateY = props.translateY || imageTranslate.value[1]
   const scale = props.scale || imageScale.value
@@ -350,9 +359,24 @@ onUnmounted(() => {
 })
 
 function setImageSizes() {
+  if (!imageRef.value) return
   imageAutoSize.value = [imageRef.value.clientWidth, imageRef.value.clientHeight]
   imageNaturalSize.value = [imageRef.value.naturalWidth, imageRef.value.naturalHeight]
 }
+
+watch(
+  () => displayImg.value,
+  async () => {
+    if (!imageRef.value) return
+    const imgDom = imageRef.value
+    await nextTick()
+    if (imgDom.complete) {
+      setImageSizes()
+    } else {
+      imgDom.addEventListener('load', setImageSizes)
+    }
+  }
+)
 
 onMounted(() => {
   if (!imageRef.value) return
@@ -365,20 +389,30 @@ onMounted(() => {
   }
 })
 
-onUnmounted(() => {
+onMounted(() => {
+  // 监听窗口尺寸变化
+  window.addEventListener('resize', reset)
+})
+
+onBeforeUnmount(() => {
   if (!imageRef.value) return
   const imgDom = imageRef.value
   imgDom.removeEventListener('load', setImageSizes)
 })
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', reset)
+})
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .viewer {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
+  z-index: 100;
 
   display: flex;
   justify-content: center;
@@ -386,6 +420,22 @@ onUnmounted(() => {
 
   box-sizing: border-box;
   border: 1px solid green;
+
+  .mask {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    // z-index: 1;
+  }
+
+  .checkbox {
+    cursor: pointer;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #fff;
+  }
 }
 
 .viewer-image {
@@ -406,21 +456,34 @@ onUnmounted(() => {
   left: 50%;
   transform: translateX(-50%);
 
+  padding: 8px 16px;
+  width: max-content;
+
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
 
-  padding: 16px;
-  background-color: rgba(200, 200, 200, 0.1);
-  border: 1px solid rgba(200, 200, 200, 0.1);
+  background-color: rgba(200, 200, 200, 0.2);
+  border: 1px solid rgba(200, 200, 200, 0.2);
   border-radius: 8px;
   color: rgba(0, 0, 0, 0.7);
-}
 
-.btn {
-  padding: 4px;
-  background-color: rgb(225, 225, 225, 0.5);
-  border-radius: 4px;
-  cursor: pointer;
+  .filename {
+    color: #fff;
+  }
+
+  .toolbar-operations {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .btn {
+      padding: 4px;
+      background-color: rgb(225, 225, 225, 0.5);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  }
 }
 </style>

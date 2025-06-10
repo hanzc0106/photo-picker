@@ -1,33 +1,33 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useDirSettings, useImgDisplay } from '../store'
+import { useDirSetting, useDisplayImage } from '../store'
 import ImgListItem from './ImgListItem.vue'
-import { useDeleteImg } from '../hooks/useDeleteImg'
+import { useDeleteImage } from '@renderer/hooks/useDeleteImg'
 
-const storeDirSettings = useDirSettings()
-const { dir: dirInput, dirFiles } = storeToRefs(storeDirSettings)
+const storeDirSetting = useDirSetting()
+const { dir, dirFiles } = storeToRefs(storeDirSetting)
 
-const storeImgDisplay = useImgDisplay()
-const { displayImg } = storeToRefs(storeImgDisplay)
-const { setDisplayImg } = storeImgDisplay
+const storeDisplayImage = useDisplayImage()
+const { displayImg } = storeToRefs(storeDisplayImage)
+const { setDisplayImg } = storeDisplayImage
 
 const handleDisplay = async (img) => {
-  setDisplayImg(encodeURI('file://' + dirInput.value + '/' + img))
+  setDisplayImg(encodeURI('file://' + dir.value + '/' + img))
 
   document.body.style.overflow = 'hidden'
 }
 
-const deleteImg = useDeleteImg()
+const deleteImage = useDeleteImage()
 
 const handleDelete = async (fileName) => {
   console.log('delete')
   if (fileName) {
-    await deleteImg(fileName)
+    await deleteImage(fileName)
     return
   }
 
   if (displayImg.value) {
-    await deleteImg(displayImg.value.split('/').pop())
+    await deleteImage(displayImg.value.split('/').pop() as string)
     return
   }
 }
@@ -38,7 +38,7 @@ const handleDelete = async (fileName) => {
     <ImgListItem
       v-for="file in dirFiles"
       :key="file"
-      :img-path="encodeURI('file://' + dirInput + '/' + file)"
+      :img-path="encodeURI('file://' + dir + '/' + file)"
       :img-name="file"
       @on-display="handleDisplay(file)"
       @on-delete="handleDelete(file)"

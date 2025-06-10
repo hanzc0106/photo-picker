@@ -1,7 +1,7 @@
 {
-  "name": "fuji-photo-deleter",
+  "name": "photo-picker",
   "version": "0.0.1",
-  "description": "A simple app to delete JPG and corresponding RAF files in FujiFilm cameras",
+  "description": "A simple app to pick photos, to delete JPG and corresponding RAF files in FujiFilm cameras",
   "main": "./out/main/index.js",
   "author": "Hanzc",
   "homepage": "https://electron-vite.org",
@@ -21,7 +21,8 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
-    "electron-settings": "^4.0.4"
+    "electron-settings": "^4.0.4",
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.2",

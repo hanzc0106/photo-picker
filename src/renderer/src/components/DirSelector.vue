@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useDirSettings } from '../store/dirSettings'
+import { useDirSetting } from '@renderer/store/dirSetting'
 
-const storeDirSettings = useDirSettings()
-const { dir: dirInput, deleteRaw: shouldDeleteRaw } = storeToRefs(storeDirSettings)
-const { setDir, setDirFiles, setDeleteRaw } = storeDirSettings
+const storeDirSetting = useDirSetting()
+const { dir, deleteRaw: shouldDeleteRaw } = storeToRefs(storeDirSetting)
+const { setDir, setDirFiles, setDeleteRaw } = storeDirSetting
 
 onMounted(async () => {
   const directory = await window.api.getSetting('directory')
@@ -54,7 +54,7 @@ const handleClear = () => {
   <div class="settings">
     <label class="directory">
       <span>目录</span>
-      <input v-model="dirInput" @change="handleChange" />
+      <input v-model="dir" @change="handleChange" />
       <button @click="handleOpen">打开</button>
       <button @click="handleScan">扫描</button>
       <button @click="handleClear">清除</button>

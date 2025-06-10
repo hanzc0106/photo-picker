@@ -1,2 +1,2 @@
-export { useDirSettings } from './dirSettings'
-export { useImgDisplay } from './imgDisplay'
+export { useDirSetting } from './dirSetting'
+export { useDisplayImage } from './displayImage'

@@ -1,11 +1,11 @@
-export function getConfigByKey(key) {
+export function getConfigByKey(key: string): any {
   const config = localStorage.getItem('config')
   if (!config) throw new Error('config not found in localStorage')
 
   return JSON.parse(config)[key]
 }
 
-export function setConfig(key, value) {
+export function setConfig(key: string, value: any) {
   const config = localStorage.getItem('config')
 
   if (!config) {

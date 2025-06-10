@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
 
-interface IDirSettings {
+interface IDirSetting {
   dir: string
   dirFiles: string[]
   deleteRaw: boolean
 }
 
-export const useDirSettings = defineStore('dirSettings', {
-  state: (): IDirSettings => ({
+export const useDirSetting = defineStore('dirSetting', {
+  state: (): IDirSetting => ({
     dir: '',
     dirFiles: [],
     deleteRaw: false

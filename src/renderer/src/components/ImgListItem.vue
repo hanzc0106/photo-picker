@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 const props = defineProps({ imgPath: String, imgName: String })
 // eslint-disable-next-line no-unused-vars
 const emits = defineEmits(['onDisplay', 'onDelete'])

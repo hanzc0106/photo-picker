@@ -17,7 +17,7 @@ const api = {
   getSetting: (key: string) => electronAPI.ipcRenderer.invoke('get-setting', key),
   setSetting: (key: string, value: any) =>
     electronAPI.ipcRenderer.invoke('set-setting', key, value),
-  deleteImg: (file: string, deleteRaw: boolean) =>
+  deleteImage: (file: string, deleteRaw: boolean) =>
     electronAPI.ipcRenderer.invoke('delete-img', file, deleteRaw)
 }
 

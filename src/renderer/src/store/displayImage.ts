@@ -1,7 +1,11 @@
 import { defineStore } from 'pinia'
 
-export const useImgDisplay = defineStore('imgDisplay', {
-  state: () => ({
+interface IDisplayImage {
+  displayImg: string
+}
+
+export const useDisplayImage = defineStore('displayImage', {
+  state: (): IDisplayImage => ({
     displayImg: ''
   }),
   getters: {},

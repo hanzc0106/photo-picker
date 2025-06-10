@@ -1,19 +1,19 @@
 import { storeToRefs } from 'pinia'
-import { useDirSettings, useImgDisplay } from '../store'
+import { useDirSetting, useDisplayImage } from '../store'
 
-export function useDeleteImg() {
-  const storeDirSettings = useDirSettings()
-  const { dir: dirInput, dirFiles, deleteRaw } = storeToRefs(storeDirSettings)
-  const { setDirFiles } = storeDirSettings
+export function useDeleteImage() {
+  const storeDirSetting = useDirSetting()
+  const { dir, dirFiles, deleteRaw } = storeToRefs(storeDirSetting)
+  const { setDirFiles } = storeDirSetting
 
-  const storeImgDisplay = useImgDisplay()
-  const { displayImg } = storeToRefs(storeImgDisplay)
-  const { setDisplayImg } = storeImgDisplay
+  const storeDisplayImage = useDisplayImage()
+  const { displayImg } = storeToRefs(storeDisplayImage)
+  const { setDisplayImg } = storeDisplayImage
 
-  const deleteImg = async (fileName: string) => {
+  const deleteImage = async (fileName: string) => {
     fileName = decodeURI(fileName)
     try {
-      await window.api.deleteImg(fileName, deleteRaw.value)
+      await window.api.deleteImage(fileName, deleteRaw.value)
     } catch (e) {
       console.error(e)
     }
@@ -24,9 +24,9 @@ export function useDeleteImg() {
       } else {
         const index = dirFiles.value.indexOf(fileName)
         if (index === dirFiles.value.length - 1) {
-          setDisplayImg(encodeURI(dirInput.value + '/' + dirFiles.value[0]))
+          setDisplayImg(encodeURI(dir.value + '/' + dirFiles.value[0]))
         } else {
-          setDisplayImg(encodeURI(dirInput.value + '/' + dirFiles.value[index + 1]))
+          setDisplayImg(encodeURI(dir.value + '/' + dirFiles.value[index + 1]))
         }
       }
     }
@@ -35,5 +35,5 @@ export function useDeleteImg() {
     setDirFiles(dirFiles.value.filter((file) => file !== fileName))
   }
 
-  return deleteImg
+  return deleteImage
 }
