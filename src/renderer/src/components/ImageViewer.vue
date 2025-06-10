@@ -14,17 +14,23 @@
       @mouseup="mouseUp"
     />
     <div class="toolbar">
-      <div class="filename">{{ fileName }}</div>
+      <div class="filename">{{ fileName }} ({{ imagePixels }})</div>
       <div class="toolbar-operations">
-        <div class="btn" @click="oneToOne">1:1</div>
-        <div class="btn" @click="reset">重置</div>
-        <div class="btn" @click="rotate">旋转</div>
-        <div class="btn" @click="flipX">上下翻转</div>
-        <div class="btn" @click="flipY">左右翻转</div>
         <div class="btn">{{ imageRatio }}%</div>
-        <div class="btn" @click="handlePrev">上一个</div>
-        <div class="btn" @click="handleNext">下一个</div>
-        <div class="btn" @click="() => handleDelete()">删除</div>
+
+        <div class="btn" @click="oneToOne">
+          <Icon name="one-to-one" />
+        </div>
+        <div class="btn" @click="reset">
+          <Icon name="reset" />
+        </div>
+        <div class="btn" @click="rotateLeft"><Icon name="rotate-left" /></div>
+        <div class="btn" @click="rotateRight"><Icon name="rotate-right" /></div>
+        <div class="btn" @click="flipX"><Icon name="flip-x" /></div>
+        <div class="btn" @click="flipY"><Icon name="flip-y" /></div>
+        <div class="btn" @click="handlePrev"><Icon name="prev" /></div>
+        <div class="btn" @click="handleNext"><Icon name="next" /></div>
+        <div class="btn danger" @click="() => handleDelete()"><Icon name="delete" /></div>
         <label class="checkbox">
           <span>删除RAF</span>
           <input v-model="deleteRaw" type="checkbox" @change="handleCheck" />
@@ -35,20 +41,12 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  onMounted,
-  onUnmounted,
-  computed,
-  CSSProperties,
-  watch,
-  nextTick,
-  onBeforeUnmount
-} from 'vue'
+import Icon from '@renderer/components/ui-kit/Icon.vue'
 import { storeToRefs } from 'pinia'
 import { useDirSetting, useDisplayImage } from '../store'
 import { useDeleteImage } from '@renderer/hooks/useDeleteImg'
 import { throttle } from 'lodash-es'
+import type { CSSProperties } from 'vue'
 
 const storeDirSetting = useDirSetting()
 const { dir, dirFiles, deleteRaw } = storeToRefs(storeDirSetting)
@@ -148,8 +146,6 @@ onUnmounted(() => {
 const viewerRef = ref<HTMLDivElement>()
 const imageRef = ref<HTMLImageElement>()
 
-const viewerSize = ref()
-
 // 图片属性
 const imageNaturalSize = ref()
 const imageAutoSize = ref()
@@ -169,7 +165,10 @@ const imageRatio = computed(() => {
   if (!imageNaturalSize.value || !imageAutoSize.value || !imageScale.value) return 0
   return ((imageAutoSize.value[0] * imageScale.value * 100) / imageNaturalSize.value[0]).toFixed(0)
 })
-
+const imagePixels = computed(() => {
+  if (!imageNaturalSize.value) return '0 * 0'
+  return `${imageNaturalSize.value[0]}×${imageNaturalSize.value[1]}`
+})
 const transitionDuration = 1000 / 60
 
 function wheelImage(e) {
@@ -283,20 +282,24 @@ function reset() {
   setImageSizes()
 }
 
-function rotate() {
-  imageRotate.value = imageRotate.value + 1
+function rotateLeft() {
+  imageRotate.value = imageRotate.value - 1
+  updateImageStyle()
+}
 
+function rotateRight() {
+  imageRotate.value = imageRotate.value + 1
   updateImageStyle()
 }
 
 function flipX() {
-  imageFlipX.value = !imageFlipX.value
+  imageFlipY.value = !imageFlipY.value
 
   updateImageStyle()
 }
 
 function flipY() {
-  imageFlipY.value = !imageFlipY.value
+  imageFlipX.value = !imageFlipX.value
 
   updateImageStyle()
 }
@@ -325,38 +328,6 @@ function updateImageStyle(
     transition: useTransition ? `transform ${transitionDuration / 1000}s linear` : 'unset'
   }
 }
-
-// 加载时设置容器大小
-// 监听容器大小变化
-function setViewerSize() {
-  const viewerDom = viewerRef.value
-  if (viewerDom) {
-    viewerSize.value = [viewerDom.clientWidth, viewerDom.clientHeight]
-  } else {
-    setTimeout(setViewerSize, 0)
-  }
-}
-
-const observer = new ResizeObserver((entries) => {
-  for (const entry of entries) {
-    setViewerSize()
-  }
-})
-
-onMounted(() => {
-  if (!viewerRef.value) {
-    return
-  }
-  setViewerSize()
-  observer.observe(viewerRef.value)
-})
-
-onUnmounted(() => {
-  if (!viewerRef.value) {
-    return
-  }
-  observer.unobserve(viewerRef.value)
-})
 
 function setImageSizes() {
   if (!imageRef.value) return
@@ -479,10 +450,17 @@ onBeforeUnmount(() => {
     gap: 8px;
 
     .btn {
-      padding: 4px;
+      height: 44px;
+      min-width: 44px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background-color: rgb(225, 225, 225, 0.5);
       border-radius: 4px;
       cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
     }
   }
 }

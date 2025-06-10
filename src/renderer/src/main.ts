@@ -1,3 +1,5 @@
+import './assets/iconfont.js'
+import './assets/iconfont.css'
 import './assets/main.css'
 
 import { createApp } from 'vue'
