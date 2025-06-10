@@ -1,5 +1,5 @@
 import { storeToRefs } from 'pinia'
-import { useDirSetting, useDisplayImage } from '../store'
+import { useDirSetting, useDisplayImage } from '@/store'
 
 export function useDeleteImage() {
   const storeDirSetting = useDirSetting()
@@ -32,7 +32,7 @@ export function useDeleteImage() {
     }
 
     console.log('dirFiles: ', dirFiles.value, fileName)
-    setDirFiles(dirFiles.value.filter((file) => file !== fileName))
+    setDirFiles(dirFiles.value.filter(file => file !== fileName))
   }
 
   return deleteImage

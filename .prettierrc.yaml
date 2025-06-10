@@ -1,4 +1,22 @@
-singleQuote: true
+$schema: 'https://json.schemastore.org/prettierrc'
 semi: false
+singleQuote: true
 printWidth: 100
-trailingComma: none
+arrowParens: 'avoid'
+trailingComma: 'all'
+htmlWhitespaceSensitivity: 'ignore'
+plugins:
+  - '@ianvs/prettier-plugin-sort-imports'
+importOrder:
+  - '^vue$'
+  - '^vue-router$'
+  - '^pinia$'
+  - '^element-plus$'
+  - '^@/components/(.*)$'
+  - '^@/views(.*)$'
+  - '^@/assets(.*)$'
+  - '^@/router(.*)$'
+  - '^@/store(.*)$'
+  - '^@/hooks(.*)$'
+  - '^@/utils(.*)$'
+  - '^[./]'

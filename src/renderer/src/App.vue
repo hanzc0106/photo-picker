@@ -1,13 +1,13 @@
 <script setup>
 import DirSelector from './components/DirSelector.vue'
+import ImageViewer from './components/ImageViewer.vue'
 import ImgList from './components/ImgList.vue'
-import ImgViewer from './components/ImageViewer.vue'
 </script>
 
 <template>
   <DirSelector />
   <ImgList />
-  <ImgViewer />
+  <ImageViewer />
 </template>
 
 <style scoped>

@@ -41,12 +41,12 @@
 </template>
 
 <script setup lang="ts">
-import Icon from '@renderer/components/ui-kit/Icon.vue'
-import { storeToRefs } from 'pinia'
-import { useDirSetting, useDisplayImage } from '../store'
-import { useDeleteImage } from '@renderer/hooks/useDeleteImg'
 import { throttle } from 'lodash-es'
 import type { CSSProperties } from 'vue'
+import { storeToRefs } from 'pinia'
+import Icon from '@/components/ui-kit/Icon.vue'
+import { useDirSetting, useDisplayImage } from '@/store'
+import { useDeleteImage } from '@/hooks/useDeleteImg'
 
 const storeDirSetting = useDirSetting()
 const { dir, dirFiles, deleteRaw } = storeToRefs(storeDirSetting)
@@ -61,7 +61,7 @@ const fileName = computed(() => {
   return decodeURI(displayImg.value.split('/').pop() as string)
 })
 
-const handleKeyUp = (event) => {
+const handleKeyUp = event => {
   switch (event.key) {
     case 'Delete':
       handleDelete()
@@ -78,7 +78,7 @@ const handleKeyUp = (event) => {
   }
 }
 
-const handleCheck = async (event) => {
+const handleCheck = async event => {
   const checked = event.target.checked
   setDeleteRaw(checked)
   await window.api.setSetting('deleteRaw', checked)
@@ -110,7 +110,7 @@ const handlePrev = async () => {
     setDisplayImg(encodeURI('file://' + dir.value + '/' + dirFiles.value[index - 1]))
   } else {
     setDisplayImg(
-      encodeURI('file://' + dir.value + '/' + dirFiles.value[dirFiles.value.length - 1])
+      encodeURI('file://' + dir.value + '/' + dirFiles.value[dirFiles.value.length - 1]),
     )
   }
 }
@@ -235,9 +235,9 @@ function mouseMove(e) {
   updateImageStyle(
     {
       translateX: imageTranslate.value[0] + deltaX,
-      translateY: imageTranslate.value[1] + deltaY
+      translateY: imageTranslate.value[1] + deltaY,
     },
-    false
+    false,
   )
 }
 function mouseUp(e) {
@@ -259,7 +259,7 @@ function oneToOne() {
       imageNaturalSize.value,
       ',',
       'imageAutoSize: ',
-      imageAutoSize.value
+      imageAutoSize.value,
     )
     return
   }
@@ -313,7 +313,7 @@ function updateImageStyle(
     rotateX?: number
     rotateY?: number
   } = {},
-  useTransition = true
+  useTransition = true,
 ) {
   const translateX = props.translateX || imageTranslate.value[0]
   const translateY = props.translateY || imageTranslate.value[1]
@@ -325,7 +325,7 @@ function updateImageStyle(
   imageStyle.value = {
     ...(imageStyle.value || {}),
     transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
-    transition: useTransition ? `transform ${transitionDuration / 1000}s linear` : 'unset'
+    transition: useTransition ? `transform ${transitionDuration / 1000}s linear` : 'unset',
   }
 }
 
@@ -346,7 +346,7 @@ watch(
     } else {
       imgDom.addEventListener('load', setImageSizes)
     }
-  }
+  },
 )
 
 onMounted(() => {

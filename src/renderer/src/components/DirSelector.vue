@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useDirSetting } from '@renderer/store/dirSetting'
+import { useDirSetting } from '@/store/dirSetting'
 
 const storeDirSetting = useDirSetting()
 const { dir, deleteRaw: shouldDeleteRaw } = storeToRefs(storeDirSetting)
@@ -18,7 +18,7 @@ onMounted(async () => {
   setDeleteRaw(!!deleteRaw)
 })
 
-const handleChange = async (event) => {
+const handleChange = async event => {
   const dir = event.target.value
   setDir(dir.replace(/\\/g, '/'))
 
@@ -26,7 +26,7 @@ const handleChange = async (event) => {
   await window.api.setSetting('directory', dir)
 }
 
-const handleCheck = async (event) => {
+const handleCheck = async event => {
   const checked = event.target.checked
   setDeleteRaw(event.target.checked)
   await window.api.setSetting('deleteRaw', checked)
